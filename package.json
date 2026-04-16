@@ -1,0 +1,19 @@
+{
+  "name": "pokemon-battle",
+  "version": "1.0.0",
+  "description": "A Pokemon battle game with TUI interface",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "npx ts-node src/index.ts",
+    "dev": "npx ts-node src/index.ts"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "inquirer": "^8.2.7"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2"
+  }
+}
