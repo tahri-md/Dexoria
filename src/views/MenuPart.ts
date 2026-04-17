@@ -38,9 +38,9 @@ export async function showLoadGameMenu(): Promise<string | null> {
         return null;
     }
 
-    const choices = saves.map(save => ({
-        name: `${save.metadata.playerName} - Phase: ${save.metadata.gamePhase} - ${save.metadata.savedAt}`,
-        value: save.filename
+    const choices: Array<{ name: string; value: string | null }> = saves.map(save => ({
+        name: `${save.playerName} - Phase: ${save.gamePhase} - ${save.timestamp}`,
+        value: save.fileName
     }));
 
     choices.push({ name: 'Cancel', value: null });
