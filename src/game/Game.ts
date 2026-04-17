@@ -5,6 +5,7 @@ import inquirer from "inquirer";
 import keypress from "keypress";
 import { fetchPokemonByName, fetchPokemonById, parsePokemonData } from "../utils/api.ts";
 import { playerSelectMove, botSelectMoveRandom, playerSelectPokemon, botSelectPokemonRandom, displayBattleStatus, displayAttack, displayPokemonFainted } from "../utils/battle.ts";
+import { SaveManager } from "../persistence/index.ts";
 
 export { GAME_STATE };
 
@@ -13,6 +14,8 @@ export class Game {
     player: Player
     bot: Player
     isPaused: boolean = false
+    turnCounter: number = 0
+    gamePhase: "ongoing" | "playerWon" | "botWon" = "ongoing"
 
     constructor(gameState: typeof GAME_STATE[keyof typeof GAME_STATE], player: Player, bot: Player) {
         this.gameState = gameState;
@@ -51,7 +54,7 @@ export class Game {
                 console.log('\nBattle resumed...\n');
                 break;
             case PAUSE_MENU_OPTIONS.SAVE:
-                console.log("\nSave game feature coming soon!");
+                await this.saveCurrentGame();
                 this.isPaused = false;
                 this.gameState = GAME_STATE.IN_GAME;
                 this.setupKeyboardListener();
@@ -61,6 +64,31 @@ export class Game {
                 console.log("\nReturning to main menu...");
                 process.exit(0);
                 break;
+        }
+    }
+
+    private async saveCurrentGame(): Promise<void> {
+        try {
+            const { name: saveName } = await inquirer.prompt([
+                {
+                    type: 'string',
+                    name: 'name',
+                    message: 'Enter save name (or press enter for auto-name)',
+                    default: `save_${new Date().toISOString().split('T')[0]}`
+                }
+            ]);
+
+            await SaveManager.saveGameState(
+                this.player,
+                this.bot,
+                this.turnCounter,
+                this.gamePhase,
+                saveName
+            );
+            
+            console.log('Game saved! Resuming battle...');
+        } catch (error) {
+            console.error('Failed to save game:', error);
         }
     }
 
@@ -119,6 +147,8 @@ export class Game {
                     this.player.pokemon_on_play.is_alive = false
                     break
                 }
+
+                this.turnCounter++
             }
             
             if (!this.player.pokemon_on_play.is_alive) {
@@ -147,8 +177,10 @@ export class Game {
         this.stopKeyboardListener();
         console.log(`\n=== BATTLE END ===`)
         if (playerHasAlive) {
+            this.gamePhase = "playerWon"
             console.log(`${this.player.name} WINS!`)
         } else {
+            this.gamePhase = "botWon"
             console.log(`Bot WINS!`)
         }
     }
