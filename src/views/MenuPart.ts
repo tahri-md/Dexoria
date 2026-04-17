@@ -1,25 +1,17 @@
 import inquirer from 'inquirer';
 import { GAME_STATE, PAUSE_MENU_OPTIONS } from '../utils/constants.ts';
+import { SaveManager } from '../persistence/index.ts';
 
-export async function MenuPart(gameState: typeof GAME_STATE[keyof typeof GAME_STATE]) {
+export async function MenuPart(gameState: typeof GAME_STATE[keyof typeof GAME_STATE]): Promise<string> {
     const { menu } = await inquirer.prompt([
-  {
-    type: 'list',
-    name: 'menu',
-    message: 'Welcome to Dexoria',
-    choices: ['NEW_GAME', 'SAVED_GAME', 'SETTINGS']
-  }
-]);
-    switch (menu) {
-        case "NEW_GAME":
-            gameState === GAME_STATE.IN_GAME
-            break;
-        case "SAVED_GAME":
-            break;
-        case "SETTINGS":
-            break;
-    }
-
+        {
+            type: 'list',
+            name: 'menu',
+            message: 'Welcome to Dexoria',
+            choices: ['NEW_GAME', 'LOAD_GAME', 'SETTINGS']
+        }
+    ]);
+    return menu;
 }
 
 export async function showPauseMenu(): Promise<string> {
@@ -36,4 +28,31 @@ export async function showPauseMenu(): Promise<string> {
         }
     ]);
     return action;
+}
+
+export async function showLoadGameMenu(): Promise<string | null> {
+    const saves = await SaveManager.listAvailableSaves();
+    
+    if (saves.length === 0) {
+        console.log('\nNo saved games found.');
+        return null;
+    }
+
+    const choices = saves.map(save => ({
+        name: `${save.metadata.playerName} - Phase: ${save.metadata.gamePhase} - ${save.metadata.savedAt}`,
+        value: save.filename
+    }));
+
+    choices.push({ name: 'Cancel', value: null });
+
+    const { saveFile } = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'saveFile',
+            message: 'Select a game to load:',
+            choices: choices
+        }
+    ]);
+
+    return saveFile;
 }
