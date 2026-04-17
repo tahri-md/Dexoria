@@ -265,7 +265,28 @@ export class Game {
     async play() {
         switch (this.gameState) {
             case GAME_STATE.MENU_PART:
-                await MenuPart(this.gameState);
+                const menuChoice = await MenuPart(this.gameState);
+                
+                if (menuChoice === 'NEW_GAME') {
+                    this.gameState = GAME_STATE.IN_GAME;
+                    await this.in_game();
+                } else if (menuChoice === 'LOAD_GAME') {
+                    const saveFile = await showLoadGameMenu();
+                    if (saveFile) {
+                        const loaded = await this.loadGameFromSave(saveFile);
+                        if (loaded) {
+                            this.isLoadedGame = true;
+                            this.gameState = GAME_STATE.IN_GAME;
+                            await this.resumeLoadedGame();
+                        } else {
+                            console.log('Failed to load game. Returning to menu...');
+                            await this.play();
+                        }
+                    } else {
+                        await this.play();
+                    }
+                }
+                break;
             case GAME_STATE.IN_GAME:
                 await this.in_game();
                 break;
