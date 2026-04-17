@@ -1,6 +1,7 @@
 import type { Player, Pokemon } from "../models/index.ts";
-import { MenuPart, showPauseMenu } from "../views/MenuPart.ts";
+import { MenuPart, showPauseMenu, showLoadGameMenu } from "../views/MenuPart.ts";
 import { GAME_STATE, PAUSE_MENU_OPTIONS } from "../utils/constants.ts";
+import { SaveManager } from "../persistence/index.ts";
 import inquirer from "inquirer";
 import keypress from "keypress";
 import { fetchPokemonByName, fetchPokemonById, parsePokemonData } from "../utils/api.ts";
@@ -16,6 +17,7 @@ export class Game {
     isPaused: boolean = false
     turnCounter: number = 0
     gamePhase: "ongoing" | "playerWon" | "botWon" = "ongoing"
+    isLoadedGame: boolean = false
 
     constructor(gameState: typeof GAME_STATE[keyof typeof GAME_STATE], player: Player, bot: Player) {
         this.gameState = gameState;
