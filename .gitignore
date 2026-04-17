@@ -35,7 +35,7 @@ Thumbs.db
 .cache/
 tsconfig.tsbuildinfo
 
-# Saves directory (when implemented)
+# Saves directory
 saves/
 
 # Optional cache
