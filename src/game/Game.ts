@@ -94,11 +94,39 @@ export class Game {
         }
     }
 
-    async in_game() {
-        await this.playerInfos()
-        await this.botChoosePokemon()
+    private async loadGameFromSave(fileName: string): Promise<boolean> {
+        try {
+            const loaded = await SaveManager.loadGameState(fileName);
+            if (loaded) {
+                this.player = loaded.player;
+                this.bot = loaded.bot;
+                this.turnCounter = loaded.turn;
+                this.gamePhase = loaded.gamePhase as "ongoing" | "playerWon" | "botWon";
+                console.log(`\nGame loaded! Turn ${this.turnCounter}\n`);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Error loading game:', error);
+            return false;
+        }
+    }
 
-        console.log("\nBattle is starting...")
+    private async resumeLoadedGame(): Promise<void> {
+        this.setupKeyboardListener();
+        console.log(`\nResuming battle: ${this.player.name} vs Bot`);
+        console.log(`Current turn: ${this.turnCounter}`);
+        console.log('(Press ESC to pause)\n');
+        
+        await this.game_start();
+    }
+
+    async in_game() {
+        if (!this.isLoadedGame) {
+            await this.playerInfos()
+            await this.botChoosePokemon()
+            console.log("\nBattle is starting...")
+        }
         this.game_start()
     }
 
