@@ -1,7 +1,8 @@
 import type { Player, Pokemon } from "../models/index.ts";
-import { MenuPart } from "../views/MenuPart.ts";
-import { GAME_STATE } from "../utils/constants.ts";
+import { MenuPart, showPauseMenu } from "../views/MenuPart.ts";
+import { GAME_STATE, PAUSE_MENU_OPTIONS } from "../utils/constants.ts";
 import inquirer from "inquirer";
+import keypress from "keypress";
 import { fetchPokemonByName, fetchPokemonById, parsePokemonData } from "../utils/api.ts";
 import { playerSelectMove, botSelectMoveRandom, playerSelectPokemon, botSelectPokemonRandom, displayBattleStatus, displayAttack, displayPokemonFainted } from "../utils/battle.ts";
 
@@ -11,11 +12,56 @@ export class Game {
     gameState: typeof GAME_STATE[keyof typeof GAME_STATE];
     player: Player
     bot: Player
+    isPaused: boolean = false
 
     constructor(gameState: typeof GAME_STATE[keyof typeof GAME_STATE], player: Player, bot: Player) {
         this.gameState = gameState;
         this.player = player
         this.bot = bot
+    }
+
+    private setupKeyboardListener() {
+        keypress(process.stdin);
+        process.stdin.on('keypress', (ch, key) => {
+            if (key && key.name === 'escape') {
+                this.isPaused = true;
+            }
+        });
+        process.stdin.setRawMode(true);
+        process.stdin.resume();
+    }
+
+    private stopKeyboardListener() {
+        process.stdin.setRawMode(false);
+        process.stdin.pause();
+    }
+
+    private async handlePause() {
+        this.gameState = GAME_STATE.PAUSED;
+        this.stopKeyboardListener();
+        
+        console.log('\n');
+        const choice = await showPauseMenu();
+        
+        switch (choice) {
+            case PAUSE_MENU_OPTIONS.RESUME:
+                this.isPaused = false;
+                this.gameState = GAME_STATE.IN_GAME;
+                this.setupKeyboardListener();
+                console.log('\nBattle resumed...\n');
+                break;
+            case PAUSE_MENU_OPTIONS.SAVE:
+                console.log("\nSave game feature coming soon!");
+                this.isPaused = false;
+                this.gameState = GAME_STATE.IN_GAME;
+                this.setupKeyboardListener();
+                break;
+            case PAUSE_MENU_OPTIONS.MAIN_MENU:
+                this.stopKeyboardListener();
+                console.log("\nReturning to main menu...");
+                process.exit(0);
+                break;
+        }
     }
 
     async in_game() {
@@ -27,6 +73,9 @@ export class Game {
     }
 
     async game_start() {
+        this.setupKeyboardListener();
+        console.log('(Press ESC to pause)\n');
+        
         await playerSelectPokemon(this.player)
         const alivePokemons = this.bot.pokemons.filter(p => p.is_alive)
         await this.botSelectPokemonRound(alivePokemons)
@@ -38,7 +87,15 @@ export class Game {
         let botHasAlive = true
         
         while (playerHasAlive && botHasAlive) {
+            if (this.isPaused) {
+                await this.handlePause();
+            }
+
             while (this.player.pokemon_on_play.is_alive && this.bot.pokemon_on_play.is_alive) {
+                if (this.isPaused) {
+                    await this.handlePause();
+                }
+
                 displayBattleStatus(this.player, this.bot)
                 
                 const player_move = await playerSelectMove(this.player.pokemon_on_play)
@@ -87,6 +144,7 @@ export class Game {
             }
         }
         
+        this.stopKeyboardListener();
         console.log(`\n=== BATTLE END ===`)
         if (playerHasAlive) {
             console.log(`${this.player.name} WINS!`)
