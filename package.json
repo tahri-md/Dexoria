@@ -11,10 +11,14 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "inquirer": "^8.2.7",
-    "keypress": "^0.2.1"
+    "keypress": "^0.2.1",
+    "ws": "^8.20.0"
   },
   "devDependencies": {
+    "@types/inquirer": "^9.0.9",
+    "@types/keypress": "^2.0.30",
     "@types/node": "^25.6.0",
+    "@types/ws": "^8.18.1",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.2"
   }

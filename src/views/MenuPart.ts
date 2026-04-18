@@ -8,7 +8,7 @@ export async function MenuPart(gameState: typeof GAME_STATE[keyof typeof GAME_ST
             type: 'list',
             name: 'menu',
             message: 'Welcome to Dexoria',
-            choices: ['NEW_GAME', 'LOAD_GAME', 'SETTINGS']
+            choices: ['NEW_GAME', 'LOAD_GAME','MULTIPLAYER', 'SETTINGS']
         }
     ]);
     return menu;
