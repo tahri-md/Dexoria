@@ -35,6 +35,7 @@ src/
 - **Team Management** - Select and switch Pokemon during battle
 - **HP Tracking** - Pokemon faint when HP reaches 0
 - **Clean UI** - Interactive prompts and clear battle display
+- **Multiplayer Lobby/Battle** - Host or join a room and play synchronized turns
 
 ## 🚧 Coming Soon
 
@@ -45,14 +46,15 @@ src/
 - Speed-based turn order
 - Status effects (poison, paralysis, burn, etc.)
 - Smarter bot AI
-- Multiplayer battles
 - Standalone executable (no ts-node needed)
 
 ## 📝 Commands
 
 ```bash
-npm start    # Play the game
-npm run dev  # Same as start
+npm start             # Play single-player from menu
+npm run start:server  # Start WebSocket multiplayer server (port 8101)
+npm run dev           # Same as start
+npm run dev:server    # Same as start:server
 ```
 
 ---
