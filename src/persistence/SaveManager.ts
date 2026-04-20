@@ -28,7 +28,9 @@ export class SaveManager {
           pokemons: player.pokemons.map((p) => ({
             name: p.name,
             hp: p.hp,
+            maxHp: p.maxHp,
             is_alive: p.is_alive,
+            stats: p.stats,
             moves: p.moves,
           })),
           pokemon_on_play_index: playerOnPlayIndex,
@@ -39,7 +41,9 @@ export class SaveManager {
           pokemons: bot.pokemons.map((p) => ({
             name: p.name,
             hp: p.hp,
+            maxHp: p.maxHp,
             is_alive: p.is_alive,
+            stats: p.stats,
             moves: p.moves,
           })),
           pokemon_on_play_index: botOnPlayIndex,
@@ -70,14 +74,18 @@ export class SaveManager {
       const playerPokemons = saveData.player.pokemons.map((p) => ({
         name: p.name,
         hp: p.hp,
+        maxHp: p.maxHp,
         is_alive: p.is_alive,
+        stats: p.stats,
         moves: p.moves,
       }));
 
       const botPokemons = saveData.bot.pokemons.map((p) => ({
         name: p.name,
         hp: p.hp,
+        maxHp: p.maxHp,
         is_alive: p.is_alive,
+        stats: p.stats,
         moves: p.moves,
       }));
 

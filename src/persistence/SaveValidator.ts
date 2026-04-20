@@ -69,8 +69,28 @@ export class SaveValidator {
       return false;
     }
 
+    if (typeof pokemon.maxHp !== "number" || pokemon.maxHp <= 0) {
+      console.error("Invalid pokemon maxHp");
+      return false;
+    }
+
     if (typeof pokemon.is_alive !== "boolean") {
       console.error("Invalid pokemon alive status");
+      return false;
+    }
+
+    if (!pokemon.stats || typeof pokemon.stats !== "object") {
+      console.error("Invalid pokemon stats");
+      return false;
+    }
+
+    if (
+      typeof pokemon.stats.attack !== "number" ||
+      typeof pokemon.stats.defense !== "number" ||
+      typeof pokemon.stats.speed !== "number" ||
+      typeof pokemon.stats.spAtk !== "number"
+    ) {
+      console.error("Invalid pokemon stat values");
       return false;
     }
 
