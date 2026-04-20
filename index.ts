@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Entry point - delegates to reorganized src/index.ts
 import { Game, GAME_STATE } from "./src/game/Game.ts";
 import type { Player } from "./src/models/index.ts"

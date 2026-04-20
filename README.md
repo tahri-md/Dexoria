@@ -4,9 +4,22 @@ A turn-based Pokemon battle game built with TypeScript and Node.js. Battle again
 
 ## 🎮 Quick Start
 
+**Development (with ts-node):**
 ```bash
 npm install
+npm run dev
+```
+
+**Standalone Executable (no ts-node needed):**
+```bash
+npm install
+npm run build
 npm start
+```
+
+Or run the compiled executable directly:
+```bash
+./dist/index.js
 ```
 
 ## 🎯 How to Play

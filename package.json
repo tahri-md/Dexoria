@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "description": "A Pokemon battle game with TUI interface",
   "type": "module",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "bin": {
+    "pokemon-battle": "dist/index.js"
+  },
   "scripts": {
-    "start": "npx ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
     "dev": "npx ts-node src/index.ts",
-    "start:server": "npx ts-node src/game/server/server.ts",
+    "start:server": "node dist/src/game/server/server.js",
     "dev:server": "npx ts-node src/game/server/server.ts"
   },
   "dependencies": {
