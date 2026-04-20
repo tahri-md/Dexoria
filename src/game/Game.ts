@@ -173,7 +173,7 @@ export class Game {
 
                 displayBattleStatus(this.player, this.bot);
 
-                const playerMove = await playerSelectMove(this.player.pokemon_on_play);
+                const playerMove = await playerSelectMove(this.player.pokemon_on_play, this.bot.pokemon_on_play);
                 const playerMoveHits = checkAccuracy(playerMove);
                 let playerDamage = 0;
                 let playerCritical = false;
@@ -412,7 +412,7 @@ export class Game {
 
                 displayBattleStatus(this.player, this.bot);
 
-                const localMove = await playerSelectMove(this.player.pokemon_on_play);
+                const localMove = await playerSelectMove(this.player.pokemon_on_play, this.bot.pokemon_on_play);
                 client.send({
                     type: "battle_move",
                     moveName: localMove.name,

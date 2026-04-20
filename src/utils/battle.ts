@@ -1,11 +1,11 @@
 import type { Pokemon, Player } from "../models/index.ts";
 import inquirer from "inquirer";
 
-export async function playerSelectMove(pokemon: Pokemon): Promise<any> {
-    const availableMoves = pokemon.moves.filter(m => m.pp > 0);
+export async function playerSelectMove(attacker: Pokemon, defender: Pokemon): Promise<any> {
+    const availableMoves = attacker.moves.filter(m => m.pp > 0);
     
     if (availableMoves.length === 0) {
-        console.log(`${pokemon.name} has no moves with PP remaining!`);
+        console.log(`${attacker.name} has no moves with PP remaining!`);
         return {
             name: "Struggle",
             power: 50,
@@ -16,7 +16,10 @@ export async function playerSelectMove(pokemon: Pokemon): Promise<any> {
         };
     }
     
-    const move_choices = availableMoves.map(m => `${m.name} (PP: ${m.pp}/${m.maxPp})`);
+    const move_choices = availableMoves.map(m => {
+        const damage = calculateDamage(attacker, defender, m);
+        return `${m.name} (DMG: ${damage} | PP: ${m.pp}/${m.maxPp})`;
+    });
     const player_move_choice = await inquirer.prompt([{
         type: "list",
         name: "move",
@@ -25,7 +28,7 @@ export async function playerSelectMove(pokemon: Pokemon): Promise<any> {
     }]);
     
     const selectedMoveName = player_move_choice.move.split(" (")[0];
-    return pokemon.moves.find(m => m.name === selectedMoveName)!;
+    return attacker.moves.find(m => m.name === selectedMoveName)!;
 }
 
 export function botSelectMoveRandom(pokemon: Pokemon): any {
