@@ -21,18 +21,44 @@ export async function parsePokemonData(pokemonData: any): Promise<Pokemon> {
             const moveData = await fetchMoveDetails(move.move.url);
             return {
                 name: moveData.name,
-                power: moveData.power,
-                accuracy: moveData.accuracy,
+                power: moveData.power || 0,
+                accuracy: moveData.accuracy || 100,
                 pp: moveData.pp,
+                maxPp: moveData.pp,
                 type: moveData.type.name
             };
         })
     );
 
+    const stats = pokemonData.stats.reduce((acc: any, stat: any) => {
+        const statName = stat.stat.name;
+        const baseValue = stat.base_stat;
+        
+        switch(statName) {
+            case 'attack':
+                acc.attack = baseValue;
+                break;
+            case 'defense':
+                acc.defense = baseValue;
+                break;
+            case 'speed':
+                acc.speed = baseValue;
+                break;
+            case 'sp-atk':
+                acc.spAtk = baseValue;
+                break;
+        }
+        return acc;
+    }, { attack: 50, defense: 50, speed: 50, spAtk: 50 });
+
+    const maxHp = 300;
+
     return {
         name: pokemonData.name,
-        hp: 300,
+        hp: maxHp,
+        maxHp: maxHp,
         is_alive: true,
+        stats: stats,
         moves: movesData
     };
 }
