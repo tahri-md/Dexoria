@@ -34,18 +34,22 @@ src/
 - **Turn-Based Combat** - Player moves first, bot responds
 - **Team Management** - Select and switch Pokemon during battle
 - **HP Tracking** - Pokemon faint when HP reaches 0
+- **Pokemon Stats System** - Attack, Defense, Speed, Special Attack influence battle outcomes
+- **Stat-Based Damage Calculation** - Damage formula uses attacker/defender stats for realistic combat
+- **Move Accuracy** - Moves can miss based on accuracy stat
+- **Critical Hits** - Chance to deal 1.5x damage based on speed stat (6.25% base + speed bonus)
+- **PP (Power Points) System** - Moves have limited uses; Struggle move as fallback
+- **Move Damage Display** - See predicted damage for each move before selecting
 - **Clean UI** - Interactive prompts and clear battle display
 - **Multiplayer Lobby/Battle** - Host or join a room and play synchronized turns
+- **Save & Load Game** - Persist and resume battle progress
 
 ## 🚧 Coming Soon
 
-- Save & load game progress
-- Move accuracy and critical hits
-- PP (Power Points) system
-- Pokemon stats (Attack, Defense, Speed, Special)
 - Speed-based turn order
 - Status effects (poison, paralysis, burn, etc.)
 - Smarter bot AI
+- Type effectiveness multipliers
 - Standalone executable (no ts-node needed)
 
 ## 📝 Commands
