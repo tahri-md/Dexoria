@@ -4,7 +4,7 @@ import { GAME_STATE, PAUSE_MENU_OPTIONS } from "../utils/constants.ts";
 import inquirer from "inquirer";
 import { createRequire } from "node:module";
 import { fetchPokemonByName, fetchPokemonById, parsePokemonData } from "../utils/api.ts";
-import { playerSelectMove, botSelectMoveRandom, playerSelectPokemon, botSelectPokemonRandom, displayBattleStatus, displayAttack, displayPokemonFainted } from "../utils/battle.ts";
+import { playerSelectMove, botSelectMoveRandom, playerSelectPokemon, botSelectPokemonRandom, displayBattleStatus, displayAttack, displayPokemonFainted, calculateDamage, checkAccuracy, checkCriticalHit, consumeMovePP } from "../utils/battle.ts";
 import { SaveManager } from "../persistence/index.ts";
 import { SocketClient } from "./client/Client.ts";
 
@@ -174,9 +174,21 @@ export class Game {
                 displayBattleStatus(this.player, this.bot);
 
                 const playerMove = await playerSelectMove(this.player.pokemon_on_play);
-                const playerDamage = playerMove.power || 0;
+                const playerMoveHits = checkAccuracy(playerMove);
+                let playerDamage = 0;
+                let playerCritical = false;
+                
+                if (playerMoveHits) {
+                    playerDamage = calculateDamage(this.player.pokemon_on_play, this.bot.pokemon_on_play, playerMove);
+                    playerCritical = checkCriticalHit(this.player.pokemon_on_play);
+                    if (playerCritical) {
+                        playerDamage = Math.floor(playerDamage * 1.5);
+                    }
+                }
+                
                 this.bot.pokemon_on_play.hp -= playerDamage;
-                displayAttack(this.player.pokemon_on_play.name, playerMove, playerDamage);
+                consumeMovePP(playerMove);
+                displayAttack(this.player.pokemon_on_play.name, playerMove, playerDamage, playerCritical, playerMoveHits);
 
                 if (this.bot.pokemon_on_play.hp <= 0) {
                     displayPokemonFainted(this.bot.pokemon_on_play.name);
@@ -185,9 +197,21 @@ export class Game {
                 }
 
                 const botMove = botSelectMoveRandom(this.bot.pokemon_on_play);
-                const botDamage = botMove.power || 0;
+                const botMoveHits = checkAccuracy(botMove);
+                let botDamage = 0;
+                let botCritical = false;
+                
+                if (botMoveHits) {
+                    botDamage = calculateDamage(this.bot.pokemon_on_play, this.player.pokemon_on_play, botMove);
+                    botCritical = checkCriticalHit(this.bot.pokemon_on_play);
+                    if (botCritical) {
+                        botDamage = Math.floor(botDamage * 1.5);
+                    }
+                }
+                
                 this.player.pokemon_on_play.hp -= botDamage;
-                displayAttack(this.bot.pokemon_on_play.name, botMove, botDamage);
+                consumeMovePP(botMove);
+                displayAttack(this.bot.pokemon_on_play.name, botMove, botDamage, botCritical, botMoveHits);
 
                 if (this.player.pokemon_on_play.hp <= 0) {
                     displayPokemonFainted(this.player.pokemon_on_play.name);
@@ -317,10 +341,21 @@ export class Game {
 
     private applyMove(attacker: Pokemon, defender: Pokemon, moveName: string): void {
         const move = this.findMoveByName(attacker, moveName);
-        const damage = move.power || 0;
+        const moveHits = checkAccuracy(move);
+        let damage = 0;
+        let isCritical = false;
+        
+        if (moveHits) {
+            damage = calculateDamage(attacker, defender, move);
+            isCritical = checkCriticalHit(attacker);
+            if (isCritical) {
+                damage = Math.floor(damage * 1.5);
+            }
+        }
 
         defender.hp -= damage;
-        displayAttack(attacker.name, move, damage);
+        consumeMovePP(move);
+        displayAttack(attacker.name, move, damage, isCritical, moveHits);
 
         if (defender.hp <= 0) {
             defender.hp = 0;
@@ -359,7 +394,7 @@ export class Game {
 
         this.bot.pokemon_on_play = opponentOpeningPokemon;
         this.bot.pokemon_on_play.is_alive = true;
-        this.bot.pokemon_on_play.hp = 300;
+        this.bot.pokemon_on_play.hp = this.bot.pokemon_on_play.maxHp;
         console.log(`${this.bot.name} sent out: ${this.bot.pokemon_on_play.name}`);
 
         let playerHasAlive = true;
@@ -433,7 +468,7 @@ export class Game {
 
                     this.bot.pokemon_on_play = nextPokemon;
                     this.bot.pokemon_on_play.is_alive = true;
-                    this.bot.pokemon_on_play.hp = 300;
+                    this.bot.pokemon_on_play.hp = this.bot.pokemon_on_play.maxHp;
                     console.log(`${this.bot.name} sent out: ${this.bot.pokemon_on_play.name}`);
                 } else {
                     botHasAlive = false;
